@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ダミー QR コード表示</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #card {
+            border: 1px solid #ccc;
+            padding: 20px;
+            display: inline-block;
+            text-align: left;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #qrcode {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="card">
+        <h1>社員証 (ダミー)</h1>
+        <p>名前: <span id="name">山田 太郎</span></p>
+        <p>ID: <span id="userId">12345</span></p>
+        <div id="qrcode"></div>
+    </div>
+    <script>
+        // ダミーデータ
+        const dummyProfile = {
+            displayName: "山田 太郎",
+            userId: "12345",
+            timestamp: Date.now(),
+            expiry: Date.now() + 300000 // 有効期限 5 分
+        };
+
+        // JSON形式のデータをQRコードに変換
+        const qrData = JSON.stringify(dummyProfile);
+
+        console.log("QR Code Data:", qrData); // デバッグ用ログ
+
+        // QRコードを描画
+        new QRCode(document.getElementById("qrcode"), {
+            text: qrData,
+            width: 150,
+            height: 150
+        });
+    </script>
+</body>
+</html>
