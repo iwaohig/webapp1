@@ -28,6 +28,11 @@
     <button id="scan">QR コードをスキャン</button>
     <div id="result"></div>
     <script>
+        // Base64デコード用関数
+        function base64ToUtf8(str) {
+            return decodeURIComponent(escape(atob(str)));
+        }
+
         woff.init({ woffId: "xPHLCUnzH7Yl5kRx9B4ncw" }) // 実際のWOFF IDに置き換えてください
         .then(() => {
             document.getElementById("scan").addEventListener("click", () => {
@@ -39,7 +44,7 @@
                 .then(data => {
                     try {
                         // QRコードデータをデコードしてパース
-                        const decodedData = decodeURIComponent(escape(atob(data.value)));
+                        const decodedData = base64ToUtf8(data.value);
                         const result = JSON.parse(decodedData);
 
                         // 有効期限のチェック
