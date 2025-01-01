@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社員証読み取り</title>
+    <script charset="utf-8" src="https://static.worksmobile.net/static/wm/woff/edge/3.6.2/sdk.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <button id="scan">QR コードをスキャン</button>
+    <div id="result"></div>
+    <script>
+        woff.init({ woffId: "xPHLCUnzH7Yl5kRx9B4ncw" }) // 実際のWOFF IDに置き換えてください
+        .then(() => {
+            document.getElementById("scan").addEventListener("click", () => {
+                const scanButton = document.getElementById("scan");
+                scanButton.disabled = true; // ボタンを無効化
+                scanButton.textContent = "スキャン中...";
+
+                woff.scanQR()
+                .then(data => {
+                    try {
+                        // QRコードデータをデコードしてパース
+                        const decodedData = decodeURIComponent(escape(atob(data.value)));
+                        const result = JSON.parse(decodedData);
+
+                        // 有効期限のチェック
+                        const currentTimestamp = Date.now();
+                        if (currentTimestamp > result.expiry) {
+                            document.getElementById("result").textContent = "期限切れの QR コードです。";
+                        } else {
+                            document.getElementById("result").textContent =
+                                `名前: ${result.displayName}, ID: ${result.userId}`;
+                        }
+                    } catch (error) {
+                        console.error("デコードまたはパース中のエラー:", error);
+                        document.getElementById("result").textContent = "無効な QR コードです。";
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    document.getElementById("result").textContent = "QR コードのスキャン中にエラーが発生しました。";
+                })
+                .finally(() => {
+                    scanButton.disabled = false; // ボタンを再有効化
+                    scanButton.textContent = "QR コードをスキャン";
+                });
+            });
+        })
+        .catch(error => {
+            console.error("WOFF 初期化エラー:", error);
+            document.getElementById("result").textContent = "アプリの初期化に失敗しました。";
+        });
+    </script>
+</body>
+</html>
