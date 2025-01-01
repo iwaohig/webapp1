@@ -6,30 +6,64 @@
     <title>社員証表示</title>
     <script charset="utf-8" src="https://static.worksmobile.net/static/wm/woff/edge/3.6.2/sdk.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        #card {
+            border: 1px solid #ccc;
+            padding: 20px;
+            display: inline-block;
+            text-align: left;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #qrcode {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <div id="card">
         <h1>社員証</h1>
-        <p>名前: <span id="name"></span></p>
-        <p>ID: <span id="userId"></span></p>
+        <p>名前: <span id="name">Loading...</span></p>
+        <p>ID: <span id="userId">Loading...</span></p>
         <div id="qrcode"></div>
     </div>
     <script>
-        woff.init({ woffId: "70_oGE3P198y96PWeBvOfw" })
+        woff.init({ woffId: "70_oGE3P198y96PWeBvOfw" }) // 必ず実際のWOFF IDに置き換えてください
         .then(() => woff.getProfile())
         .then(profile => {
-            document.getElementById("name").textContent = profile.displayName;
-            document.getElementById("userId").textContent = profile.userId;
+            console.log("Profile fetched successfully:", profile); // デバッグログ
 
+            // ユーザー情報をHTMLに表示
+            document.getElementById("name").textContent = profile.displayName || "N/A";
+            document.getElementById("userId").textContent = profile.userId || "N/A";
+
+            // QRコードのデータ作成
             const qrData = JSON.stringify({
-                displayName: profile.displayName,
-                userId: profile.userId,
+                displayName: profile.displayName || "Unknown",
+                userId: profile.userId || "Unknown",
                 timestamp: Date.now(),
                 expiry: Date.now() + 300000 // 有効期限 5 分
             });
-            new QRCode(document.getElementById("qrcode"), qrData);
+            console.log("QR Code Data:", qrData); // デバッグログ
+
+            // QRコードを描画
+            new QRCode(document.getElementById("qrcode"), {
+                text: qrData,
+                width: 150,
+                height: 150
+            });
         })
-        .catch(console.error);
+        .catch(error => {
+            console.error("Error fetching profile or generating QR code:", error); // エラー内容のログ
+            document.getElementById("name").textContent = "Error";
+            document.getElementById("userId").textContent = "Error";
+        });
     </script>
 </body>
 </html>
