@@ -41,16 +41,17 @@
             expiry: Date.now() + 300000 // 有効期限 5 分
         };
 
-        // JSON形式のデータをQRコードに変換
-        const qrData = JSON.stringify(dummyProfile);
+        // JSONデータを文字列化してBase64エンコード
+        const qrData = btoa(JSON.stringify(dummyProfile));
 
-        console.log("QR Code Data:", qrData); // デバッグ用ログ
+        console.log("QR Code Data (Base64):", qrData); // デバッグ用ログ
 
         // QRコードを描画
         new QRCode(document.getElementById("qrcode"), {
             text: qrData,
             width: 150,
-            height: 150
+            height: 150,
+            correctLevel: QRCode.CorrectLevel.H // 高エラー訂正レベル
         });
     </script>
 </body>
