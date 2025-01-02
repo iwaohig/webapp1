@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>簡易決済アプリ</title>
+    <title>社内決済アプリ</title>
     <script charset="utf-8" src="https://static.worksmobile.net/static/wm/woff/edge/3.6.2/sdk.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
@@ -23,7 +23,6 @@
             background-color: #ffffff;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
             padding: 20px;
         }
         h1 {
@@ -37,13 +36,13 @@
             margin: 5px 0;
         }
         input {
-            width: 80%; /* 金額入力欄の幅を適切に調整 */
+            width: 80%;
             padding: 10px;
             font-size: 1rem;
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 6px;
-            text-align: right; /* 金額入力を右寄せに */
+            text-align: right;
         }
         button {
             width: 100%;
@@ -61,22 +60,46 @@
         #qrcode {
             margin-top: 20px;
         }
+        #countdown {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #d9534f;
+        }
     </style>
 </head>
 <body>
     <div id="card">
-        <h1>簡易決済アプリ</h1>
+        <h1>社内決済アプリ</h1>
         <p>名前: <span id="name">Loading...</span></p>
         <p>ID: <span id="userId">Loading...</span></p>
         <label for="amount">金額 (円):</label>
         <input type="number" id="amount" placeholder="金額を入力" max="99999" min="1" />
         <button id="generateQR">決済</button>
         <div id="qrcode"></div>
+        <p id="countdown">QRコードの有効期限: 残り <span id="timeRemaining">--:--</span></p>
     </div>
     <script>
         // UTF-8エンコード用関数
         function utf8ToBase64(str) {
             return btoa(unescape(encodeURIComponent(str)));
+        }
+
+        // カウントダウンを更新する関数
+        function startCountdown(expiryTimestamp) {
+            const countdownElement = document.getElementById("timeRemaining");
+            const interval = setInterval(() => {
+                const currentTimestamp = Date.now();
+                const timeLeft = expiryTimestamp - currentTimestamp;
+
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    countdownElement.textContent = "期限切れ";
+                } else {
+                    const minutes = Math.floor(timeLeft / 60000);
+                    const seconds = Math.floor((timeLeft % 60000) / 1000);
+                    countdownElement.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+                }
+            }, 1000);
         }
 
         woff.init({ woffId: "jcS_4cFdWsTr8YtcQ0gEOA" }) // 実際のWOFF IDを指定
@@ -119,6 +142,9 @@
                     height: 150,
                     correctLevel: QRCode.CorrectLevel.H // 高エラー訂正レベル
                 });
+
+                // カウントダウン開始
+                startCountdown(expiryTimestamp);
             });
         })
         .catch(error => {
