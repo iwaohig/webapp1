@@ -33,7 +33,7 @@
             return decodeURIComponent(escape(atob(str)));
         }
 
-        woff.init({ woffId: "MObvYINz8PkSqNUJEQKYWA" }) // 実際のWOFF IDに置き換えてください
+        woff.init({ woffId: "MObvYINz8PkSqNUJEQKYWA" }) // 実際のWOFF ID
         .then(() => {
             document.getElementById("scan").addEventListener("click", () => {
                 const scanButton = document.getElementById("scan");
@@ -49,24 +49,39 @@
 
                         // 有効期限のチェック
                         const currentTimestamp = Date.now();
+                        let message;
                         if (currentTimestamp > result.expiry) {
-                            document.getElementById("result").textContent = "期限切れの QR コードです。";
+                            message = "期限切れの QR コードです。";
+                            document.getElementById("result").innerHTML = `<strong>${message}</strong>`;
                         } else {
-                            document.getElementById("result").textContent = `
-                                名前: ${result.displayName}<br>
-                                ID: ${result.userId}<br>
-                                金額: ${result.amount} 円<br>
+                            message = `
+                                名前: ${result.displayName}\n
+                                ID: ${result.userId}\n
+                                金額: ${result.amount} 円\n
                                 有効期限: ${new Date(result.expiry).toLocaleString()}
                             `;
+                            document.getElementById("result").innerHTML = message.replace(/\n/g, "<br>");
+
+                            // メッセージ送信
+                            woff.sendMessage({
+                                type: "text",
+                                content: message
+                            })
+                            .then(() => {
+                                console.log("メッセージが送信されました:", message);
+                            })
+                            .catch(err => {
+                                console.error("メッセージ送信エラー:", err);
+                            });
                         }
                     } catch (error) {
                         console.error("デコードまたはパース中のエラー:", error);
-                        document.getElementById("result").textContent = "無効な QR コードです。";
+                        document.getElementById("result").innerHTML = "<strong>無効な QR コードです。</strong>";
                     }
                 })
                 .catch(error => {
                     console.error(error);
-                    document.getElementById("result").textContent = "QR コードのスキャン中にエラーが発生しました。";
+                    document.getElementById("result").innerHTML = "<strong>QR コードのスキャン中にエラーが発生しました。</strong>";
                 })
                 .finally(() => {
                     scanButton.disabled = false; // ボタンを再有効化
@@ -76,7 +91,7 @@
         })
         .catch(error => {
             console.error("WOFF 初期化エラー:", error);
-            document.getElementById("result").textContent = "アプリの初期化に失敗しました。";
+            document.getElementById("result").innerHTML = "<strong>アプリの初期化に失敗しました。</strong>";
         });
     </script>
 </body>
