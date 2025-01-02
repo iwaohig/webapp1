@@ -39,7 +39,7 @@
             return btoa(unescape(encodeURIComponent(str)));
         }
 
-        woff.init({ woffId: "xPHLCUnzH7Yl5kRx9B4ncw" }) // 実際のWOFF IDに置き換えてください
+        woff.init({ woffId: "xPHLCUnzH7Yl5kRx9B4ncw" }) // 実際のWOFF IDを指定
         .then(() => woff.getProfile())
         .then(profile => {
             console.log("Profile fetched successfully:", profile); // デバッグログ
@@ -49,12 +49,13 @@
             document.getElementById("userId").textContent = profile.userId || "N/A";
 
             // QRコードのデータ作成
-            const qrData = utf8ToBase64(JSON.stringify({
+            const qrPayload = {
                 displayName: profile.displayName || "Unknown",
                 userId: profile.userId || "Unknown",
                 timestamp: Date.now(),
                 expiry: Date.now() + 300000 // 有効期限 5 分
-            }));
+            };
+            const qrData = utf8ToBase64(JSON.stringify(qrPayload));
             console.log("QR Code Data (Base64):", qrData); // デバッグログ
 
             // QRコードを描画
@@ -66,9 +67,10 @@
             });
         })
         .catch(error => {
-            console.error("Error fetching profile or generating QR code:", error); // エラー内容のログ
+            console.error("Error fetching profile or generating QR code:", error); // エラー内容を記録
             document.getElementById("name").textContent = "Error";
             document.getElementById("userId").textContent = "Error";
+            document.getElementById("qrcode").textContent = "QRコードの生成に失敗しました。";
         });
     </script>
 </body>
